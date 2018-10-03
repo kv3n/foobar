@@ -1,5 +1,5 @@
 import sys
-import random
+import matplotlib.pyplot as plt
 
 
 def print_state(state):
@@ -14,32 +14,14 @@ def print_state(state):
     sys.stdout.write('\n\n')
 
 
-class TransitionNode:
-    def __init__(self, config):
-        self.config = config
-        self.possibleAssoc = []
-
-    def get_new_possibilities(self, config_so_far):
-        new_possibilities = []
-        for possibility in self.possibleAssoc:
-            if possibility & config_so_far == config_so_far:
-                new_possibilities.append(possibility)
-
-        return new_possibilities
+class EvolveState:
+    def __init__(self):
+        self.num_initial_states = 0
+        self.one_count = []
 
 
-def build_transition_dictionary():
-    transition_dict = dict()
-
-    for possible_config in range(64):
-        possible_config_state = build_mini_state(possible_config)
-        next_state = build_next_state(possible_config_state)
-        next_config = get_num_from_state(next_state)
-        if next_config not in transition_dict:
-            transition_dict[next_config] = TransitionNode(next_config)
-        transition_dict[next_config].possibleAssoc.append(possible_config)
-
-    return transition_dict
+def is_power_of_2(num):
+    return num != 0 and num & (num - 1) == 0
 
 
 def build_state(width, height):
@@ -53,15 +35,27 @@ def is_gas_present(cur_state, grid_row, grid_col):
     return 1 == num_gas_moles
 
 
-def build_mini_state(num):
-    state = [
-        [num & 32 != 0, num & 16 != 0, num & 8 != 0],
-        [num & 4 != 0, num & 2 != 0, num & 1 != 0]
-    ]
+def build_next_state(cur_state):
+    width = len(cur_state[0]) - 1
+    height = len(cur_state) - 1
+    next_state = build_state(width, height)
+    for grid_row in range(height):
+        for grid_col in range(width):
+            next_state[grid_row][grid_col] = is_gas_present(cur_state, grid_row=grid_row, grid_col=grid_col)
 
-    print_state(state)
+    return next_state
 
-    return state
+
+def build_initial_state(width, height, state_num):
+    initial_state = build_state(width, height)
+    cur_element_num = 0
+
+    for row in reversed(range(height)):
+        for col in reversed(range(width)):
+            initial_state[row][col] = (state_num & (2**cur_element_num)) != 0
+            cur_element_num += 1
+
+    return initial_state
 
 
 def get_num_from_state(state):
@@ -75,47 +69,39 @@ def get_num_from_state(state):
     return int(state_string, 2)
 
 
-def build_next_state(cur_state):
-    width = len(cur_state[0]) - 1
-    height = len(cur_state) - 1
-    next_state = build_state(width, height)
-    for grid_row in range(height):
-        for grid_col in range(width):
-            next_state[grid_row][grid_col] = is_gas_present(cur_state, grid_row=grid_row, grid_col=grid_col)
+def get_num_ones(state):
+    total_ones = 0
+    for grid_row in range(len(state)):
+        total_ones += sum(state[grid_row])
 
-    return next_state
+    return total_ones
 
 
-def fetch_possible_previous_states_num(cur_state):
-    width = len(cur_state[0]) + 1
-    height = len(cur_state) + 1
-    prev_state =  build_state(width, height)
+def generate_pattern(width, height):
+    max_val = 2**(width * height)
+    max_evolved_val = 2**((width - 1) * (height - 1))
+    resulting_state_mappings = [EvolveState() for _ in range(max_evolved_val)]
+   #count = 0
 
-    num_prev_states = 0
+    for state_num in range(max_val):
+        initial_state = build_initial_state(width, height, state_num)
+        evolved_state = build_next_state(initial_state)
+        evolved_state_num = get_num_from_state(evolved_state)
+        resulting_state_mappings[evolved_state_num].num_initial_states += 1
+        num_ones = get_num_ones(initial_state)
+        if num_ones not in resulting_state_mappings[evolved_state_num].one_count:
+            resulting_state_mappings[evolved_state_num].one_count.append(num_ones)
+        #if evolved_state_num == 8761:
+        #    count += 1
+    return resulting_state_mappings
 
-    return num_prev_states
-
-
-def random_state_generator(width, height):
-    #width = random.randint(4, 52)
-    #height = random.randint(4, 11)
-    state = build_state(width, height)
-
-    for grid_row in range(height):
-        for grid_col in range(width):
-            state[grid_row][grid_col] = (random.random() > 0.5)
-
-    return state
+    #return count
 
 
-build_transition_dictionary()
+resulting_pattern = generate_pattern(2, 3)
 
-#state_1 = [[False, True, False, False], [False, False, True, False], [False, False, False, True], [True, False, False, False]]
-#print_state(state_1)
-#print_state(build_next_state(state_1))
+print(resulting_pattern)
 
-#state = random_state_generator(5, 6)
-#print_state(state)
-#print_state(build_next_state(state))
+#for i in range(len(resulting_pattern)):
+#    print(str(i) + ': ' + str(resulting_pattern[i].num_initial_states))
 
-#build_mini_state(num=33)

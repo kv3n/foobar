@@ -98,10 +98,10 @@ def generate_pattern(width, height):
     #return count
 
 
-resulting_pattern = generate_pattern(2, 3)
+resulting_pattern = generate_pattern(4, 4)
 
-print(resulting_pattern)
+#print(resulting_pattern)
 
-#for i in range(len(resulting_pattern)):
-#    print(str(i) + ': ' + str(resulting_pattern[i].num_initial_states))
+for i in range(len(resulting_pattern)):
+    print(str(i) + ': ' + str(resulting_pattern[i].num_initial_states) + ', ' + str(resulting_pattern[i].one_count))
 

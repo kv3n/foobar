@@ -28,7 +28,14 @@ def print_possibilities(state_possibilities):
         for grid_col in range(width):
             cell = state_possibilities[grid_row][grid_col]
             sys.stdout.write(str(int(cell.gas_active)) + ': ' + str(cell.configs) + '\t\t')
+        sys.stdout.write('\n')
 
+    sys.stdout.write('\n\n')
+
+    for grid_row in range(height):
+        for grid_col in range(width):
+            cell = state_possibilities[grid_row][grid_col]
+            sys.stdout.write(str(int(cell.gas_active)) + ': ' + str(cell.config_possibilities) + '\t\t')
         sys.stdout.write('\n')
 
     sys.stdout.write('\n\n')
@@ -106,7 +113,19 @@ def process_evolved_state(evolved_state):
     return state_possibilities
 
 
-def get_num_ways_to_reach(cell, top_cell, left_cell):
+def num_overlaps(cell, right_cell_val, bottom_cell_val):
+    overlapping_bits = ((right_cell_val & 8) >> 1) | ((bottom_cell_val & 12) >> 2)
+
+    overlap_count = 0
+    for cell_val in cell.configs:
+        cell_val_masked = (cell_val & 7)
+        if cell_val_masked ^ overlapping_bits == 0:
+            overlap_count += 1
+
+    return overlap_count
+
+
+def get_num_ways_to_reach(cell, top_cell, left_cell, topleft_cell):
     num_cell_configs = len(cell.configs)
     if top_cell is None and left_cell is None:
         # Starting point
@@ -147,7 +166,7 @@ def get_num_ways_to_reach(cell, top_cell, left_cell):
                     top_cell_val = top_cell.configs[top_cell_config_id]
                     top_masked = (top_cell_val & 3)
                     if (masked_h ^ left_masked == 0) and (masked_v ^ top_masked == 0):
-                        cell.config_possibilities[config_id] += top_cell.config_possibilities[top_cell_config_id] * left_cell.config_possibilities[left_cell_config_id]
+                        cell.config_possibilities[config_id] += num_overlaps(topleft_cell, top_cell_val, left_cell_val)
 
     return cell
 
@@ -167,19 +186,22 @@ def get_num_total_possibilities(state_possibilities):
                 lcell = None
             else:
                 lcell = state_possibilities[row][col - 1]
+            if row == 0 or col == 0:
+                tlcell = None
+            else:
+                tlcell = state_possibilities[row - 1][col - 1]
 
-            state_possibilities[row][col] = get_num_ways_to_reach(cell, tcell, lcell)
+            state_possibilities[row][col] = get_num_ways_to_reach(cell, tcell, lcell, tlcell)
 
     return state_possibilities[height - 1][width - 1].get_total_possibilities()
 
 
 #evolved_state = [[True, False, True]] # Answer 8
-evolved_state = [[True, False], [False, True]] # Answer 12
-#evolved_state = [[True, False, True], [False, True, False], [True, False, True]] # Answer 4
+#evolved_state = [[True, False], [False, True]] # Answer 12
+evolved_state = [[True, False, True], [False, True, False], [True, False, True]] # Answer 4
 #evolved_state = [[True, True, True], [True, True, True], [False, False, True]] # Answer 22
 #evolved_state = [[True, False]] # Answer 10
 state_possibilities = process_evolved_state(evolved_state)
-print_possibilities(state_possibilities)
-
 total_possibilities = get_num_total_possibilities(state_possibilities)
+print_possibilities(state_possibilities)
 print(total_possibilities)

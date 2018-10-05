@@ -98,7 +98,7 @@ def generate_pattern(width, height):
     #return count
 
 
-resulting_pattern = generate_pattern(4, 4)
+resulting_pattern = generate_pattern(3, 3)
 
 #print(resulting_pattern)
 

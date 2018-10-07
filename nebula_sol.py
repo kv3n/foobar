@@ -10,7 +10,7 @@ class Cell:
         self.gas_active = gas_active
         self.configs = []
 
-        for config_val in range(16):
+        for config_val in xrange(16):
             if gas_active and is_power_of_2(config_val):
                 self.configs.append(config_val)
             elif not gas_active and not is_power_of_2(config_val):
@@ -21,9 +21,9 @@ def process_evolved_state(evolved_state):
     height = len(evolved_state)
     width = len(evolved_state[0])
 
-    state_possibilities = [[None]*width for _ in range(height)]
-    for row in range(height):
-        for col in range(width):
+    state_possibilities = [[None]*width for _ in xrange(height)]
+    for row in xrange(height):
+        for col in xrange(width):
             state_possibilities[row][col] = Cell(evolved_state[row][col])
 
     return state_possibilities
@@ -67,8 +67,8 @@ def iterate_through_combinations(state_possibilities):
     # Find all row compatibilities first
     even_row_configs = [None] * height
 
-    for row in range(0, height):
-        for col in range(0, width):
+    for row in xrange(0, height):
+        for col in xrange(0, width):
             if col == 0:
                 even_row_configs[row] = state_possibilities[row][col].configs
             else:
@@ -81,7 +81,7 @@ def iterate_through_combinations(state_possibilities):
 
     # With these values we now combine odd columns in... because we are dope
     possible_state_configurations = even_row_configs[0]
-    for row in range(1, height):
+    for row in xrange(1, height):
         new_possible_configs = []
         for possible_state_configuration in possible_state_configurations:
             updated_configs = []
@@ -125,8 +125,5 @@ def answer(g):
 
 # Answer for below 11567
 evolved_state = [[True, True, False, True, False, True, False, True, True, False], [True, True, False, False, False, False, True, True, True, False], [True, True, False, False, False, False, False, False, False, True], [False, True, False, False, False, False, True, True, False, False]]
-
-print(len(evolved_state))
-print(len(evolved_state[0]))
 
 print(answer(evolved_state))

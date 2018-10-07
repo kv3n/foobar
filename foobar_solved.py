@@ -1,0 +1,18 @@
+#<encrypted>
+#EE4AHQwRAF0FQk5RQVMCAQ0AGhYbEh4IBh8EChMCWxNCTlFBUwAAHAQLXFJWHkdJVA0JFApcAhZJ S1tUQhoGAhxUU1tbBwxURE9VBE0eDAsdBBkAHRxGTgsXFUwFBRwLBBcBCVpFSRkAFgcaHBJJEQ0S HhgIFQ1IXkUJEAoBTEFORVQfCAAQEE8= </encrypted>
+
+import base64
+
+MESSAGE = '''
+EE4AHQwRAF0FQk5RQVMCAQ0AGhYbEh4IBh8EChMCWxNCTlFBUwAAHAQLXFJWHkdJVA0JFApcAhZJ 
+S1tUQhoGAhxUU1tbBwxURE9VBE0eDAsdBBkAHRxGTgsXFUwFBRwLBBcBCVpFSRkAFgcaHBJJEQ0S 
+HhgIFQ1IXkUJEAoBTEFORVQfCAAQEE8=
+'''
+
+KEY = 'kishore.venkateshan1729'
+
+result = []
+for i, c in enumerate(base64.b64decode(MESSAGE)):
+    result.append(chr(ord(c) ^ ord(KEY[i % len(KEY)])))
+
+print ''.join(result)

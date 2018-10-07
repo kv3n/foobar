@@ -1,3 +1,11 @@
+# ACKNOWLEDGEMENTS
+# This was indeed a tough one. Had to pull in some hands on deck to bounce off ideas and keep me motivated.
+# Special thanks to buddies at USC
+# --- Hsuan-hau 'Howard' Liu (hsuanhal@usc.edu)
+# --- Michael Root (rootm@usc.edu)
+# And ofcourse google for doing some Cell Automaton / Abstract Algebra concepts.
+
+
 def is_power_of_2(num):
     return num != 0 and num & (num - 1) == 0
 
@@ -150,6 +158,7 @@ def answer(g):
     total_possible_ways = count_initial_states(initial_state_possibilities)
 
     return total_possible_ways
+
 
 
 #evolved_state = [[True, False, True]] # Answer 8

@@ -1,5 +1,5 @@
 import sys
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 
 def print_state(state):

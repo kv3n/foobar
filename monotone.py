@@ -1,39 +1,30 @@
 class Solution(object):
     def monotoneIncreasingDigits(self, N):
+        power_of_10 = [1, 10, 100, 1000, 10000, 100000, 1000000, 10000000, 100000000, 1000000000]
         split_n = str(N)
         num_digits = len(split_n)
 
         first_dec_index = -1
-        repeat = -1
+        repeat = 1
         for digit in range(1, num_digits):
             if split_n[digit] < split_n[digit - 1]:
-                first_dec_index = digit - 1
+                first_dec_index = digit - repeat
                 break
-            elif repeat < 0 and split_n[digit] == split_n[digit - 1]:
-                repeat = digit - 1
-            elif repeat >= 0 and split_n[digit] > split_n[digit - 1]:
-                repeat = -1
-
-        if repeat >= 0 and first_dec_index >= 0:
-            first_dec_index = repeat
+            elif split_n[digit] == split_n[digit - 1]:
+                repeat += 1
+            else:
+                repeat = 1
 
         if first_dec_index < 0:
             return N
         else:
-            new_num = 0
-            for digit in range(0, num_digits):
-                digit_val = int(split_n[digit])
-                if digit == first_dec_index:
-                    digit_val -= 1
-                elif digit > first_dec_index:
-                    digit_val = 9
-                new_num = new_num * 10 + int(digit_val)
-
+            first_dec_index = num_digits - first_dec_index - 1
+            new_num = N - N % power_of_10[first_dec_index] - 1
             return new_num
 
 
 
-
+print([10 ** x for x in range(10)])
 
 solution = Solution()
 print(solution.monotoneIncreasingDigits(123))

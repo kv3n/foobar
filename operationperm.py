@@ -1,42 +1,53 @@
 class Solution(object):
-    class Operation:
-        def __init__(self, op, idx):
-            self.op = op
-            self.idx = idx
-            self.result = 0
+    def mul(self, a, b):
+        return a * b
 
     def add(self, a, b):
-        return b + a
+        return a + b
 
     def sub(self, a, b):
-        return b - a
+        return a - b
 
-    def mul(self, a, b):
-        return b * a
+    def get_results(self, equation):
+        equation_len = len(equation)
+        if equation_len == 0:
+            return []
+        elif equation_len == 1:
+            return equation
 
-    def get_result(self, permutation, operands):
-        print(permutation)
-        cur_operands = operands + []
-        operation_stack = []
-        index = 0;
-        for perm in permutation:
-            while index < perm[1] + 1:
-                operation_stack.append(cur_operands.pop(0))
-                index += 1
-            result = perm[0](operation_stack.pop(), operation_stack.pop())
-            operation_stack.append(result)
-        print(result)
+        results = []
+
+        op_index = 1
+        # if a * b + c, then do b + c first and then do *
+        hold_op_results = self.get_results(equation[op_index+1:])
+        hold_op_results = [equation[op_index](equation[op_index-1], result) for result in hold_op_results]
+        results = results + hold_op_results
+
+        # if a * b + c, then do a * b first and then do + the rest
+        if equation_len > 3:
+            cur_result = equation[op_index](equation[op_index-1], equation[op_index+1])
+            do_op_results = self.get_results([cur_result] + equation[op_index+2:])
+            results = results + do_op_results
+
+        return results
 
 
-    def generate_combination(self, results, operators, start, operands):
-        if start == len(operators):
-            results.append(self.get_result(operators, operands))
-            return
+    def parse(self, in_equation):
+        operand_start = 0
+        parsed_equation = []
+        index = 1
+        operation_mapping = {'*': self.mul, '+': self.add, '-': self.sub}
+        while index < len(in_equation):
+            if in_equation[index] in operation_mapping:
+                parsed_equation.append(int(in_equation[operand_start:index]))
+                parsed_equation.append(operation_mapping[in_equation[index]])
 
-        for index in range(start, len(operators)):
-            operators[index], operators[start] = operators[start], operators[index]
-            self.generate_combination(results, operators, start + 1, operands)
-            operators[index], operators[start] = operators[start], operators[index]
+                operand_start = index + 1
+                index = operand_start
+            index += 1
+        parsed_equation.append(int(in_equation[operand_start:index]))
+
+        return parsed_equation
 
 
     def diffWaysToCompute(self, input):
@@ -44,31 +55,14 @@ class Solution(object):
         :type input: str
         :rtype: List[int]
         """
-        operand_start = 0
-        operands = []
-        operators = []
-        index = 1
-        while index < len(input):
-            if input[index] == '*' or input[index] == '+' or input[index] == '-':
-                if input[index] == '*':
-                    operators.append((self.mul, len(operators) + 1))
-                elif input[index] == '+':
-                    operators.append((self.add, len(operators) + 1))
-                elif input[index] == '-':
-                    operators.append((self.sub, len(operators) + 1))
-                operands.append(int(input[operand_start:index]))
-                operand_start = index + 1
-                index = operand_start
 
-            index += 1
+        equation = self.parse(input)
+        results = self.get_results(equation)
 
-        results = []
-        operands.append(int(input[operand_start:len(input)]))
-        self.generate_combination(results, operators, 0, operands)
-
-        print(results)
         return results
 
+
+
 solution = Solution()
-solution.diffWaysToCompute("2*3-4*5")
+print(solution.diffWaysToCompute("2*3-4*5"))
 

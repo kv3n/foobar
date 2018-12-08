@@ -10,27 +10,19 @@ class Solution(object):
 
     def get_results(self, equation):
         equation_len = len(equation)
-        if equation_len == 0:
-            return []
-        elif equation_len == 1:
+        if equation_len == 1:
             return equation
 
         results = []
-
-        op_index = 1
-        # if a * b + c, then do b + c first and then do *
-        hold_op_results = self.get_results(equation[op_index+1:])
-        hold_op_results = [equation[op_index](equation[op_index-1], result) for result in hold_op_results]
-        results = results + hold_op_results
-
-        # if a * b + c, then do a * b first and then do + the rest
-        if equation_len > 3:
-            cur_result = equation[op_index](equation[op_index-1], equation[op_index+1])
-            do_op_results = self.get_results([cur_result] + equation[op_index+2:])
-            results = results + do_op_results
+        index = 1
+        while index < equation_len:
+            cur_result = equation[index](equation[index-1], equation[index+1])
+            new_equation = equation[0:index-1] + [cur_result] + equation[index+2:]
+            fut_results = self.get_results(new_equation)
+            results = results + fut_results
+            index += 2
 
         return results
-
 
     def parse(self, in_equation):
         operand_start = 0
@@ -65,4 +57,5 @@ class Solution(object):
 
 solution = Solution()
 print(solution.diffWaysToCompute("2*3-4*5"))
+print(solution.diffWaysToCompute("2-1-1"))
 
